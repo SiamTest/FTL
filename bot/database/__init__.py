@@ -46,9 +46,9 @@ class MongoDatabase:
                 self.omni_db = self._omni_client['OmniArchiverDB']
             elif self._client is not None:
                 self.omni_db = self._client['OmniArchiverDB']
-            logger.info("Upstream OmniArchiverDB connection initialized.")
+            logger.info("Upstream catalog connection initialized.")
         except Exception as e:
-            logger.warning("Could not initialize upstream OmniArchiverDB connection: %s", e)
+            logger.warning("Could not initialize upstream catalog connection: %s", e)
 
     async def create_indexes(self):
         """Ensures high-speed O(1) indexes to eliminate query latency and CPU spikes."""
