@@ -14,6 +14,8 @@ pinned: false
 
 **Hugging Face Spaces:** Follow [HUGGING_FACE.md](HUGGING_FACE.md) to deploy this version. It uses a Docker Space on port **7860**, detects its public URL automatically, and reads credentials from Space secrets. Configure your external MongoDB URI as `DATABASE_URL`; see the guide for network troubleshooting if the startup database ping fails.
 
+**Cloudflare Worker:** Follow [CLOUDFLARE.md](CLOUDFLARE.md) to deploy the streaming reverse proxy through GitHub Actions, then use its URL as the bot's `BASE_URL`.
+
 ## **📑 INDEX**
 
 * [**✨ Features**](#features)
