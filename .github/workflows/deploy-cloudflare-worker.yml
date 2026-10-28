@@ -30,12 +30,21 @@ jobs:
 
       - name: Configure Worker
         env:
-          ORIGIN_URL: ${{ vars.CLOUDFLARE_ORIGIN_URL }}
+          ORIGIN_URL: ${{ vars.CLOUDFLARE_ORIGIN_URL || secrets.CLOUDFLARE_ORIGIN_URL }}
           WORKER_NAME: ${{ vars.CLOUDFLARE_WORKER_NAME || 'ftl-stream-proxy' }}
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
-          const origin = new URL(process.env.ORIGIN_URL);
+          const value = (process.env.ORIGIN_URL || '').trim();
+          if (!value) {
+            throw new Error('Missing CLOUDFLARE_ORIGIN_URL. Add it in GitHub Settings > Secrets and variables > Actions as a repository variable or secret, then run the workflow again.');
+          }
+          let origin;
+          try {
+            origin = new URL(value);
+          } catch {
+            throw new Error('Invalid CLOUDFLARE_ORIGIN_URL. Use a bare HTTPS URL without quotation marks, e.g. https://your-space.hf.space');
+          }
           if (origin.protocol !== 'https:' || origin.username || origin.password ||
               origin.pathname !== '/' || origin.search || origin.hash) {
             throw new Error('Set CLOUDFLARE_ORIGIN_URL to a bare HTTPS origin, e.g. https://your-space.hf.space');
