@@ -51,3 +51,9 @@ GEMINI.md
 cache/
 .cache/
 
+# Cloudflare local state and generated deployment config
+.wrangler/
+.dev.vars*
+cloudflare/wrangler.deploy.json
+node_modules/
+
