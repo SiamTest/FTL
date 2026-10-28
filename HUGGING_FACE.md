@@ -1,4 +1,4 @@
-# Deploy OmniArchiver-F2L on Hugging Face Spaces
+# Deploy GateStream on Hugging Face Spaces
 
 ## 1. Prepare a reachable MongoDB database
 
@@ -32,7 +32,7 @@ The Space does not include a database or external gateway provisioning.
 3. Choose **Public** if stream/download URLs should work for anyone with the link.
    A private Space requires Hugging Face access and can prevent playback in
    external players.
-4. Extract the downloaded deployment ZIP on your computer.
+4. Extract `GateStream-HuggingFace.zip` on your computer.
 5. Upload the extracted contents to the Space's **Files** tab and commit them.
    `README.md`, `Dockerfile`, `requirements.txt`, and the `bot/` folder must be at
    the repository root. Do not upload just the ZIP or place everything inside an
@@ -64,13 +64,11 @@ the automatically detected public URL, e.g. for a custom domain).
 
 Leave `PORT` and `BIND_ADDRESS` unset: the image already uses `7860` and `0.0.0.0`.
 Do not upload credentials, a filled `.env`, Telegram session files, or log files.
-The former hard-coded upstream database credentials and default administrator ID
-have been removed. Rotate any previously exposed credentials you control.
 
 ## 4. Verify deployment
 
 1. Restart the Space after setting secrets and wait for **Running**.
-2. The app page should show **The streaming server is online** and a Telegram link.
+2. The app page should show **GateStream**, an online status and a Telegram link.
 3. Open `https://YOUR-SPACE-HOST.hf.space/health`; it should return `OK`.
    Use the actual app host shown by Hugging Face, not the `huggingface.co/spaces/...`
    repository page URL. The app reads this host from `SPACE_HOST` automatically.
@@ -111,3 +109,20 @@ Official references:
 - <https://huggingface.co/docs/hub/spaces-sdks-docker>
 - <https://huggingface.co/docs/hub/spaces-overview#networking>
 - <https://huggingface.co/docs/hub/spaces-overview#lifecycle-management>
+
+## GateStream upgrades
+
+Keep your existing database settings and bot token when uploading this package.
+Set `BASE_URL` to your existing Cloudflare Worker URL if using the proxy.
+Cloudflare deployment automation is supplied separately in `GateStream-GitHub.zip`.
+The Space must be permitted to run: source updates do not clear a paused
+`Flagged as abusive` status; request a review from Hugging Face in that case.
+
+## Optional Google Drive transfers
+
+The `/drive` command is included but disabled. HTTPS networking and temporary
+disk are technically available on Spaces, but this does not establish that a
+general file-transfer bot is permitted. Confirm permission with Hugging Face
+before enabling the feature. A paused/flagged Space still requires their review.
+See [GOOGLE_DRIVE.md](GOOGLE_DRIVE.md) for details. Never upload `token.pickle`
+to the Space repository; if approved, use the base64 host Secret described there.
