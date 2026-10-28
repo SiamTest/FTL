@@ -1,239 +1,216 @@
 ---
-title: OmniArchiver-F2L
-emoji: 🌐
-colorFrom: blue
-colorTo: indigo
+title: GateStream
+emoji: ✦
+colorFrom: yellow
+colorTo: gray
 sdk: docker
 app_port: 7860
 pinned: false
 ---
 
-<div align="center"><h1>🌐 OmniArchiver-F2L</h1>
-<b>A high-performance Python Telegram bot to generate permanent HTTP Stream & Direct Download links from your Telegram channels without duplicating files, powered by MongoDB and Multi-Bot parallel streaming.</b>
-</div><br>
+<div align="center">
+  <img src="bot/server/templates/brand.svg" width="88" alt="GateStream gateway logo">
+  <h1>GateStream</h1>
+  <p><strong>Gateway to your media.</strong></p>
+  <p>Index your Telegram library. Open a gate. Press play.</p>
+</div>
 
-**Hugging Face Spaces:** Follow [HUGGING_FACE.md](HUGGING_FACE.md) to deploy this version. It uses a Docker Space on port **7860**, detects its public URL automatically, and reads credentials from Space secrets. Configure your external MongoDB URI as `DATABASE_URL`; see the guide for network troubleshooting if the startup database ping fails.
+GateStream turns media in your Telegram channels into browser playback,
+direct downloads, and API links. The bot manages your catalog in MongoDB;
+the server retrieves media from Telegram as it streams. A dark interface,
+warm gold accents, and a gateway mark carry the identity from bot to browser.
 
-**Cloudflare Worker:** Follow [CLOUDFLARE.md](CLOUDFLARE.md) to deploy the streaming reverse proxy through GitHub Actions, then use its URL as the bot's `BASE_URL`.
+## Choose your package
 
-## **📑 INDEX**
+| Package | Purpose |
+| --- | --- |
+| `GateStream-GitHub.zip` | Full source, Cloudflare Worker, GitHub Actions deployment, and tests |
+| `GateStream-HuggingFace.zip` | Docker Space hosting files, bot, player, and Python tests |
 
-* [**✨ Features**](#features)
-* [**⚙️ Installation**](#installation)
-* [**📝 Variables**](#variables)
-* [**🎮 Commands & Usage**](#commands)
-* [**🕹 Deployment**](#deployment)
-  * [Hugging Face Spaces](HUGGING_FACE.md)
-  * [Linux / VPS Deployment](#d-vps)
-  * [Docker Deployment](#d-docker)
-  * [Local Deployment](#d-local)
-* [**❤️ Credits**](#credits)
+Extract the ZIP and upload the **contents** of its project folder, so `README.md`,
+`Dockerfile`, and `bot/` sit at the repository root.
 
----
+**Deploy the bot:** [Hugging Face guide](HUGGING_FACE.md) or the local/Docker steps below.
+**Deploy the edge proxy:** [Cloudflare guide](CLOUDFLARE.md), included in the GitHub package.
+**Change the Telegram profile:** [Branding guide](BRANDING.md).
+**Transfer a direct file to Drive:** [Google Drive setup](GOOGLE_DRIVE.md), optional and disabled by default.
 
-<a name="features"></a>
+## What you can do
 
-## ✨ Features
+- **Index your channels.** Add one file with `/link`, or an episode range with `/batch`.
+- **Find your media.** Search movies, anime, series, and direct files from Telegram.
+- **Watch your way.** Play in the browser, resume playback, or open VLC or MX Player.
+- **Share a link.** Create stream, download, and API URLs; revoke access by removing a link.
+- **Manage the library.** Inspect server stats, backfill durations, and back up or restore records.
+- **Send a direct file to Drive.** Admins can use `/drive <url>` with a trusted OAuth `token.pickle`; enable only on hosting that permits file transfers.
+- **Add an edge entry point.** Deploy the optional Cloudflare streaming reverse proxy from GitHub Actions.
 
-- **🚀 Multi-Bot Worker Pool:** Support for multiple bot tokens to parallelize chunk transmissions and eliminate streaming bottlenecks.
-- **🗄️ Organized MongoDB Storage:** Neatly partitions data into separate collections (`movies`, `anime`, `webseries`, `direct_files`).
-- **🚫 Zero File Duplication:** Directly indexes files from your existing channels without needing a storage bin channel.
-- **🎬 `/link` Command:** Generate instant permanent stream & download links for single movies/files from any channel.
-- **📺 `/batch` Command:** Batch index full Anime or Web Series seasons by specifying start and end message links.
-- **👥 `AUTH_USERS` Permissions:** Multi-admin support allowing designated users full access to manage and index files.
-- **⚡ Hardware Accelerated:** Powered by `tgcrypto` and asynchronous chunk streaming (`Quart`/`Uvicorn`).
-- **📦 1-Click Database Backup:** Instant `/backup` command dumps your entire MongoDB database into a compressed archive sent directly to Telegram DM.
+Media remains in Telegram. Selected opening and ending chunks are cached on
+the host's disk. Extra bot tokens support parallel retrieval; actual speed
+depends on Telegram, your host, and the network. The Worker passes media through
+without buffering the whole file; it does not create a distributed media cache.
 
----
+## Quick start on a local machine or VPS
 
-<a name="installation"></a>
+Use Python 3.11 or newer, a MongoDB endpoint reachable from the host, and a
+Telegram bot created through BotFather. Give the bot access to your source channels.
 
-## ⚙️ Installation
-
-**1. Clone the repository:**
 ```bash
-git clone https://github.com/WorkerOfArea51/OmniArchiver-F2L.git
-cd OmniArchiver-F2L
-```
-
-**2. Create a virtual environment & install requirements:**
-```bash
-python3.11 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install --upgrade pip
+git clone https://github.com/Chowdhury-Siam/FTL.git GateStream
+cd GateStream
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
-```
-
----
-
-<a name="variables"></a>
-
-## 📝 Variables
-
-Configure these variables in your `.env` file or hosting environment:
-
-| Variable | Required | Description |
-| :--- | :--- | :--- |
-| `TELEGRAM_API_ID` | **Yes** | Telegram API ID from [my.telegram.org](https://my.telegram.org) (`int`) |
-| `TELEGRAM_API_HASH` | **Yes** | Telegram API Hash from [my.telegram.org](https://my.telegram.org) (`str`) |
-| `TELEGRAM_BOT_TOKEN` | **Yes** | Main Telegram bot token from [@BotFather](https://t.me/BotFather) (`str`) |
-| `TELEGRAM_BOT_USERNAME` | *Optional* | Bot username without `@`; detected automatically on startup |
-| `MULTI_BOT_TOKENS` | *Optional* | Additional worker bot tokens (space-separated) for parallel stream acceleration |
-| `OWNER_ID` | **Yes** | Your numeric Telegram user ID (`int`) |
-| `AUTH_USERS` | *Optional* | Space-separated list of Telegram user IDs with full admin rights |
-| `ALLOWED_USER_IDS` | *Optional* | Allowed user IDs for general bot usage (leave empty to allow everyone) |
-| `TELEGRAM_CHANNEL_ID` | *Optional* | Fallback Storage Channel ID (with `-100` prefix). **Only needed if uploading files directly via private DM to the bot**. If you only index existing channels using `/link` or `/batch`, leave this empty! |
-| `DATABASE_URL` | **Yes** | MongoDB connection URI (e.g. `mongodb+srv://...` or `mongodb://localhost:27017`) |
-| `DATABASE_NAME` | *Optional* | Database name in MongoDB (default: `OmniArchiver`) |
-| `BASE_URL` | **Yes outside Spaces** | Public server URL; defaults to `https://SPACE_HOST` on Hugging Face Spaces |
-| `BIND_ADDRESS` | *Optional* | Bind address (default: `0.0.0.0`) |
-| `PORT` | *Optional* | Port to listen on (default: `8080`) |
-| `OMNI_MONGO_URI` | *Optional* | Separate upstream OmniArchiverDB URI; otherwise uses your configured MongoDB server |
-
-Environment variables take precedence over local configuration files. The Docker image defaults to port `7860`; local Python runs default to `8080`.
-
----
-
-<a name="commands"></a>
-
-## 🎮 Commands & Usage
-
-### 🎬 Single Movie Indexing (`/link`)
-Generate a permanent stream and download link for a movie in your channel:
-```text
-/link https://t.me/c/1234567890/42
-```
-*(Or forward a channel post into the bot and reply with `/link`)*
-
----
-
-### 📺 Anime Batch Indexing (`/batch anime`)
-Index an entire season of Anime episodes into the `anime` collection:
-```text
-/batch anime https://t.me/c/1234567890/10 https://t.me/c/1234567890/22
-```
-
----
-
-### 🍿 Web Series Batch Indexing (`/batch series`)
-Index Web Series episodes into the `webseries` collection:
-```text
-/batch series https://t.me/c/1234567890/50 https://t.me/c/1234567890/60
-```
-
----
-
-### 📊 Other Commands
-- `/stats` - View live database records, RAM, CPU, worker bots & streaming bandwidth (Admin only).
-- `/backup` - Instant 1-click compressed `.json.gz` database backup sent to your Telegram DM (Admin only).
-- `/clean` - Flush RAM caches & compact memory (Admin only).
-- `/restart` - Smoothly restart the bot process (Admin only).
-- `/sync_duration` - Auto-backfill video durations for existing database records (Admin only).
-- `/revoke <code_or_url>` - Delete a file link from MongoDB so it can be re-indexed cleanly (Admin only).
-- `/sh <cmd>` - Execute a shell terminal command directly from Telegram (Admin only).
-- `/log` - Download bot event log file (Admin only).
-- `/privacy` - View privacy policy.
-- `/help` - View command guide.
-
----
-
-<a name="deployment"></a>
-
-## 🕹 Deployment
-
-<a name="d-vps"></a>
-
-### 🐧 Linux / Cloud VPS Deployment (Ubuntu / Debian / FreeBSD / Any VPS)
-
-**1. Clone the repository & set up Python 3.11+ environment:**
-```bash
-cd ~
-git clone https://github.com/WorkerOfArea51/OmniArchiver-F2L.git
-cd OmniArchiver-F2L
-python3.11 -m venv venv
-source venv/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-**2. Configure your `.env` file:**
-```bash
 cp .env.example .env
-nano .env
 ```
-Fill in your Telegram API credentials, Bot Token, Owner ID, and MongoDB connection string.
 
-**3. Run 24/7 in the Background:**
+On Windows, activate with `.venv\Scripts\activate` and copy `.env.example` to `.env`.
+Fill in the required values below, set `BASE_URL` to your public server or Worker
+address, then start the bot:
 
-#### Option A: Systemd Service (Recommended for Ubuntu / Debian)
-Create a service file:
 ```bash
-sudo nano /etc/systemd/system/omniarchiver.service
-```
-Paste the configuration (replace `your_user` and path with yours):
-```ini
-[Unit]
-Description=OmniArchiver-F2L Telegram Streaming Bot
-After=network.target
-
-[Service]
-Type=simple
-User=your_user
-WorkingDirectory=/home/your_user/OmniArchiver-F2L
-ExecStart=/home/your_user/OmniArchiver-F2L/venv/bin/python -m bot
-Restart=always
-RestartSec=5
-
-[Install]
-WantedBy=multi-user.target
-```
-Enable and start the service:
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable omniarchiver
-sudo systemctl start omniarchiver
-```
-
-#### Option B: Background Run + Self-Healing Crontab Watchdog
-If your hosting does not support `systemd` (e.g. FreeBSD, shared shells, or non-root VPS):
-```bash
-# Start in background
-nohup ./venv/bin/python -m bot > bot.log 2>&1 &
-```
-To ensure it automatically turns back on if the server restarts or reboots, add the included watchdog to your crontab:
-```bash
-chmod +x scripts/watchdog.sh
-crontab -e
-```
-Add this line:
-```cron
-*/5 * * * * /path/to/OmniArchiver-F2L/scripts/watchdog.sh
-```
-
----
-
-<a name="d-docker"></a>
-
-### 🐳 Docker Deployment
-```bash
-docker build -t omniarchiver-f2l .
-docker run -d --name omniarchiver -p 8080:7860 -e PORT=7860 --env-file .env --restart unless-stopped omniarchiver-f2l
-```
-
----
-
-<a name="d-local"></a>
-
-### 💻 Local Development
-```bash
-source venv/bin/activate  # On Windows: venv\Scripts\activate
 python -m bot
 ```
 
----
+The repository may retain its existing `FTL` name on GitHub; the product is GateStream.
+Run only one deployment per main Telegram bot token.
 
-<a name="credits"></a>
+## Configuration
 
-## ❤️ Credits
+Use `.env` locally. On Hugging Face, use **Settings → Variables and secrets**;
+do not upload a filled `.env` file.
 
-- [**WorkerOfArea51**](https://github.com/WorkerOfArea51): Maintainer of OmniArchiver-F2L.
+| Setting | Required | Purpose |
+| --- | --- | --- |
+| `TELEGRAM_API_ID` | Yes | Numeric Telegram API ID |
+| `TELEGRAM_API_HASH` | Yes | Telegram API hash |
+| `TELEGRAM_BOT_TOKEN` | Yes | Main BotFather token |
+| `OWNER_ID` | Yes | Your positive numeric Telegram user ID |
+| `DATABASE_URL` | Yes for hosted deployments | MongoDB URI; local default is `mongodb://localhost:27017` |
+| `BASE_URL` | Outside Spaces | Public URL used in generated links; Spaces otherwise uses `SPACE_HOST` |
+| `DATABASE_NAME` | No | Catalog database; legacy default retained as `OmniArchiver` |
+| `MULTI_BOT_TOKENS` | No | Additional bot tokens, separated by spaces or commas |
+| `AUTH_USERS` | No | Additional administrator IDs |
+| `ALLOWED_USER_IDS` | No | Telegram users allowed to issue commands; blank allows everyone |
+| `TELEGRAM_CHANNEL_ID` | No | Storage channel for files uploaded directly to the bot |
+| `TELEGRAM_BOT_USERNAME` | No | Username fallback; detected from the bot when connected |
+| `OMNI_MONGO_URI` | No | Compatibility setting for a separate upstream catalog |
+| `PORT` | No | `8080` locally; `7860` in the Docker image and on Spaces |
+| `BIND_ADDRESS` | No | Listening address; defaults to `0.0.0.0` |
+
+### Public host and Cloudflare
+
+On the bot host, `BASE_URL` is the address users should open. For your existing
+Worker deployment:
+
+```dotenv
+BASE_URL=https://ftl-stream-proxy.ftl-556.workers.dev
+```
+
+In GitHub Actions settings, `CLOUDFLARE_ORIGIN_URL` is the **direct hosting
+address**, not a `/stream/...` link and not the Worker URL. Example:
+
+```text
+https://siamreal-hfvps.hf.space
+```
+
+The GitHub version includes a workflow that accepts that setting as a repository
+Variable or Secret. Cloudflare credentials belong in GitHub Secrets. See the
+Cloudflare guide for all settings and the deployment steps.
+
+## Commands
+
+| Command | What it does |
+| --- | --- |
+| `/start`, `/help` | Show GateStream's command guide |
+| `/search <name>` | Search the media catalog |
+| `/search_api <name>` | Return API links for matching media |
+| `/link [category] <message_link>` | Index a channel file |
+| `/batch anime <start_link> <end_link>` | Index anime episodes |
+| `/batch series <start_link> <end_link>` | Index series episodes |
+| `/episodes <batch_code>` | List a batch's episodes |
+| `/privacy` | Explain stored data and link access |
+| `/drive <url>` | Admin-only: download a direct file URL and upload it to Google Drive when enabled |
+
+Administrator commands include `/stats`, `/workers`, `/log`, `/sync_duration`,
+`/set_title`, `/revoke`, `/clean`, `/backup`, `/restore`, `/purge`, `/restart`,
+and `/sh`. `/sh` executes host commands, so grant administrator access only to
+people you trust with the server.
+
+Example channel indexing:
+
+```text
+/link https://t.me/c/1234567890/42
+/batch anime https://t.me/c/1234567890/10 https://t.me/c/1234567890/25
+```
+
+### Optional Google Drive settings
+
+See [GOOGLE_DRIVE.md](GOOGLE_DRIVE.md) for token setup, limits and hosting requirements.
+
+| Setting | Default | Purpose |
+| --- | --- | --- |
+| `DRIVE_ENABLED` | `false` | Enable admin-only Drive transfers on permitted hosting |
+| `DRIVE_TOKEN_PATH` | `token.pickle` | Path to an owner-provided OAuth token file |
+| `DRIVE_TOKEN_PICKLE_B64` | Empty | Host Secret containing the token encoded as base64; takes precedence over the file |
+| `DRIVE_FOLDER_ID` | Empty | Destination folder ID; blank uses My Drive root |
+| `DRIVE_MAX_MB` | `1024` | Maximum downloaded file size in MiB |
+
+## HTTP endpoints
+
+| Endpoint | Response |
+| --- | --- |
+| `/` | GateStream landing page |
+| `/health`, `/ping` | `OK` when the web server is responding |
+| `/stream/<code>` | Browser player |
+| `/dl/<code>` | Download; add `?stream=1` for inline media |
+| `/api/file/<code>` | File details and links |
+| `/api/batch/<code>` | Batch details and episode links |
+| `/api/movies` | Movie catalog response |
+
+Anyone holding a valid media URL can access it. Telegram user restrictions
+apply to bot commands, not HTTP playback. Index and share media you have
+permission to distribute.
+
+## Docker
+
+```bash
+docker build -t gatestream .
+docker run -d --name gatestream -p 8080:7860 --env-file .env -e PORT=7860 --restart unless-stopped gatestream
+```
+
+Set `BASE_URL` for the public address mapped to this container. On Spaces,
+the existing Docker metadata and port `7860` are already configured.
+
+## Upgrading an existing deployment
+
+1. Back up the database with `/backup` and retain your current hosting settings.
+2. Replace the source files with the contents of the appropriate GateStream ZIP.
+3. Keep the current database names, bot tokens, and Worker name, then restart the host.
+4. Test `/health`, generate a file link, and check playback and seeking.
+
+This release changes the identity and presentation. It retains MongoDB defaults
+`OmniArchiver` and `OmniArchiverDB`, `OMNI_MONGO_URI`, file codes, HTTP routes,
+Telegram session names, and the browser's existing resume keys. No database
+migration is needed. Renaming storage merely for branding could hide existing
+records, so these compatibility identifiers remain intentionally.
+
+The existing deployment target remains `ftl-stream-proxy` so the workflow can
+update your deployed Worker. To create a separately named Worker, set
+`CLOUDFLARE_WORKER_NAME=gatestream-proxy` and update the bot's `BASE_URL` after
+deployment; this is optional.
+
+## Checks
+
+```bash
+python -m unittest discover -s tests -v
+node --test cloudflare/worker.test.mjs
+```
+
+The Node check applies to the GitHub package. Python checks use mocked services
+and do not need live Telegram or MongoDB connections.
+
+## Project history
+
+GateStream is Siam's rebrand of the supplied OmniArchiver-F2L project.
+Original upstream attribution is preserved in [ACKNOWLEDGEMENTS.md](ACKNOWLEDGEMENTS.md).
