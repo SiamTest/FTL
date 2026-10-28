@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OmniArchiver-F2L</title>
+  <style>
+    body { font: 18px/1.6 system-ui, sans-serif; margin: 3rem auto; padding: 0 1.5rem; max-width: 42rem; color: #e2e8f0; background: #0f172a; }
+    h1 { line-height: 1.2; }
+    a { color: #7dd3fc; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>OmniArchiver-F2L</h1>
+    <p>The streaming server is online.</p>
+    <p>Use the Telegram bot to index files and generate stream and download links.</p>
+    {% if bot_username %}
+    <p><a href="https://t.me/{{ bot_username }}" target="_blank" rel="noopener noreferrer">Open @{{ bot_username }} on Telegram</a></p>
+    {% endif %}
+    <p><a href="/health">Check server health</a></p>
+  </main>
+</body>
+</html>
