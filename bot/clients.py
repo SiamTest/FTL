@@ -131,7 +131,7 @@ async def start_all_clients():
                     chat_id=chat_id,
                     message_id=msg_id,
                     text=(
-                        f"✅ **OmniArchiver Bot rebooted successfully{duration_str}!**\n\n"
+                        f"✅ **GateStream Bot rebooted successfully{duration_str}!**\n\n"
                         f"🚀 All worker bots, MongoDB connection, and web server are active."
                     )
                 )
