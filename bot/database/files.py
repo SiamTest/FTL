@@ -290,7 +290,7 @@ async def get_stats() -> dict:
                     _cached_omni_time = now
             except Exception as e:
                 import logging
-                logging.getLogger('bot').warning("Could not refresh OmniArchiverDB counts: %s", e)
+                logging.getLogger('bot').warning("Could not refresh upstream catalog counts: %s", e)
                 if _cached_omni_counts:
                     omni_counts = _cached_omni_counts
                 else:
