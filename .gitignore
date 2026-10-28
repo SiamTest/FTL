@@ -57,3 +57,8 @@ cache/
 cloudflare/wrangler.deploy.json
 node_modules/
 
+# Private Google OAuth credentials
+*.pickle
+token.json
+credentials.json
+
