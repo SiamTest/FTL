@@ -1,4 +1,4 @@
-name: Deploy Cloudflare Worker
+name: Deploy GateStream Worker
 
 on:
   workflow_dispatch:
