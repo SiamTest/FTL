@@ -17,3 +17,6 @@ cache
 .cache
 downloads
 tests
+*.pickle
+token.json
+credentials.json
