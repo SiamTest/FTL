@@ -8,7 +8,7 @@ with patch.dict(os.environ, {
     'TELEGRAM_API_ID': '12345',
     'TELEGRAM_API_HASH': 'test_hash',
     'TELEGRAM_BOT_TOKEN': '12345:test_token',
-    'TELEGRAM_BOT_USERNAME': 'TestArchiverBot',
+    'TELEGRAM_BOT_USERNAME': 'TestGateStreamBot',
     'OWNER_ID': '12345',
     'DATABASE_URL': 'mongodb://localhost:27017',
     'SPACE_ID': 'user/app',
@@ -30,7 +30,7 @@ class ServerTests(unittest.IsolatedAsyncioTestCase):
     async def test_home_is_embeddable_page(self):
         response = await instance.test_client().get('/')
         self.assertEqual(response.status_code, 200)
-        self.assertIn('https://t.me/TestArchiverBot', await response.get_data(as_text=True))
+        self.assertIn('https://t.me/TestGateStreamBot', await response.get_data(as_text=True))
         self.assertNotIn('Location', response.headers)
 
     async def test_health_endpoints(self):
@@ -102,6 +102,74 @@ class TelegramReplyTests(unittest.IsolatedAsyncioTestCase):
                 caption = status.edit_text.call_args.kwargs['text']
                 self.assertIn(properties[-1], caption)
                 self.assertIn('https://user-app.hf.space/dl/test-code', caption)
+
+
+class DriveCommandTests(unittest.IsolatedAsyncioTestCase):
+    @classmethod
+    def setUpClass(cls):
+        with patch.object(clients.TelegramBot, 'add_handler'):
+            from bot.plugins import drive
+        cls.drive = drive
+
+    def message(self, user_id=12345):
+        from hydrogram.types import Message
+        from unittest.mock import MagicMock
+        message = MagicMock(spec=Message)
+        message.from_user = SimpleNamespace(id=user_id)
+        message.text = '/drive https://example.com/file.bin'
+        message.reply = AsyncMock(return_value=SimpleNamespace(edit_text=AsyncMock()))
+        return message
+
+    async def test_only_admins_can_start_transfers_and_feature_defaults_off(self):
+        message = self.message(user_id=999)
+        with patch.object(self.drive.Drive, 'ENABLED', True), patch.object(self.drive, 'load_credentials') as load:
+            await self.drive.drive_command(None, message)
+            load.assert_not_called()
+            self.assertIn('Administrators', message.reply.call_args.kwargs['text'])
+        message = self.message()
+        with patch.object(self.drive.Drive, 'ENABLED', False), patch.object(self.drive, 'load_credentials') as load:
+            await self.drive.drive_command(None, message)
+            load.assert_not_called()
+            self.assertIn('disabled', message.reply.call_args.args[0])
+
+    async def test_failed_download_cleans_temporary_file(self):
+        from pathlib import Path
+        paths = []
+
+        async def fail_download(url, directory, limit):
+            path = Path(directory) / 'payload'
+            path.write_bytes(b'partial-download')
+            paths.append(path)
+            raise self.drive.DriveTransferError('The file exceeds DRIVE_MAX_MB.')
+
+        message = self.message()
+        with patch.object(self.drive.Drive, 'ENABLED', True), patch.object(self.drive, 'load_credentials', return_value=object()):
+            with patch.object(self.drive, 'download_file', fail_download), patch.object(self.drive, 'upload_file') as upload:
+                await self.drive.drive_command(None, message)
+                upload.assert_not_called()
+        self.assertTrue(paths)
+        self.assertFalse(paths[0].exists())
+        self.assertFalse(self.drive._job_lock.locked())
+
+    async def test_success_cleans_download_and_returns_drive_button(self):
+        from pathlib import Path
+        paths = []
+
+        async def download(url, directory, limit):
+            path = Path(directory) / 'payload'
+            path.write_bytes(b'abc')
+            paths.append(path)
+            return path, 'file.bin'
+
+        message = self.message()
+        message.caption = message.text
+        message.text = None
+        with patch.object(self.drive.Drive, 'ENABLED', True), patch.object(self.drive, 'load_credentials', return_value=object()):
+            with patch.object(self.drive, 'download_file', download), patch.object(self.drive, 'upload_file', return_value={'id': 'new-file'}):
+                await self.drive.drive_command(None, message)
+        self.assertFalse(paths[0].exists())
+        self.assertEqual(message.reply.return_value.edit_text.call_args.kwargs['reply_markup'].inline_keyboard[0][0].url,
+                         'https://drive.google.com/file/d/new-file/view')
 
 
 if __name__ == '__main__':
