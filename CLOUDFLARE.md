@@ -1,6 +1,6 @@
-# Deploy the streaming Worker with GitHub Actions
+# Deploy the GateStream Worker with GitHub Actions
 
-The Worker forwards requests to your existing FTL server. Your bot, Telegram
+The Worker forwards requests to your existing GateStream server. Your bot, Telegram
 connections and database continue running on Hugging Face Spaces or your VPS.
 The Worker passes response bodies through as streams and preserves byte-range
 responses for seeking. It does not implement a distributed video cache or
@@ -47,7 +47,7 @@ Worker if you want to keep an existing deployment.
 
 ## 3. Deploy
 
-Open **Actions → Deploy Cloudflare Worker → Run workflow**. The workflow tests
+Open **Actions → Deploy GateStream Worker → Run workflow**. The workflow tests
 the proxy, builds the deployment configuration, and deploys through Wrangler.
 The run summary shows the deployed Worker URL. You must use the subdomain of
 your own Cloudflare account; your friend's URL is not automatically yours.
@@ -93,3 +93,10 @@ Deployment references:
 - https://github.com/cloudflare/wrangler-action
 - https://developers.cloudflare.com/workers/wrangler/configuration/
 - https://developers.cloudflare.com/workers/runtime-apis/streams/
+
+## GateStream deployment identity
+
+The default Worker name remains `ftl-stream-proxy` to update existing deployments
+without changing public URLs. For a new branded endpoint, optionally set
+`CLOUDFLARE_WORKER_NAME` to `gatestream-proxy`, deploy, then use the returned URL
+as your bot host’s `BASE_URL`.
