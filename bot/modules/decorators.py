@@ -23,7 +23,7 @@ def verify_user(func: Callable):
             return await update.reply(
                 text=UserNotInAllowedList,
                 quote=True,
-                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton('Deploy Own', url='https://github.com/WorkerOfArea51/OmniArchiver-F2L')]])
+                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton('Deploy GateStream', url='https://github.com/Chowdhury-Siam/FTL')]])
             )
         
     return decorator
