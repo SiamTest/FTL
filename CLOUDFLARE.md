@@ -25,13 +25,21 @@ Under **Settings → Secrets and variables → Actions**, add:
 | --- | --- | --- |
 | Repository secret | `CLOUDFLARE_API_TOKEN` | The Cloudflare API token |
 | Repository secret | `CLOUDFLARE_ACCOUNT_ID` | Your Cloudflare account ID |
-| Repository variable | `CLOUDFLARE_ORIGIN_URL` | Your actual server address, e.g. `https://YOUR-SPACE.hf.space` |
+| Repository variable or secret | `CLOUDFLARE_ORIGIN_URL` | Your actual server address, e.g. `https://YOUR-SPACE.hf.space` |
 | Repository variable (optional) | `CLOUDFLARE_WORKER_NAME` | Defaults to `ftl-stream-proxy`; set `stream-proxy` to update an existing Worker with that name in your account |
 
 `CLOUDFLARE_ORIGIN_URL` must be a bare HTTPS origin, without credentials, a path,
 query string or fragment. For Spaces, use the app's `.hf.space` address, not its
 `huggingface.co/spaces/...` repository page. The origin must be publicly
 accessible and must not route back to the Worker.
+
+Enter the URL without quotation marks. The workflow accepts a repository
+variable or repository secret with this name; a nonempty variable takes
+precedence if both exist. For this deployment, use
+`https://siamreal-hfvps.hf.space`. If the workflow reports a missing setting,
+check this exact name under the GitHub repository's Actions settings and rerun
+the workflow after saving it. A setting on the Hugging Face host alone is not
+available to GitHub Actions.
 
 Deploying with an existing Worker name replaces that Worker's code and manages
 its variables from this workflow. Use the default name to create a separate
