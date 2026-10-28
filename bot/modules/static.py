@@ -20,9 +20,9 @@ def format_duration(seconds: int | None) -> str:
     return f"{m:02d}:{s:02d}"
 
 WelcomeText = """\
-👋 Hi **%(first_name)s**, welcome to **OmniArchiver-F2L**! 🌐
+✦ **GateStream — Gateway to your media**
 
-I can generate permanent direct download & high-speed streaming links for files directly from your Telegram channels without duplicating files!
+Hi **%(first_name)s**. Turn your Telegram library into stream and download links. Open a gate. Press play.
 
 **User Commands:**
 🔍 `/search <name>` - Search movies, anime & series with streaming links.
@@ -34,6 +34,7 @@ I can generate permanent direct download & high-speed streaming links for files 
 ❓ `/help` - Show this help menu.
 
 **Admin Commands:**
+☁️ `/drive <url>` - Download a direct file link and upload it to Google Drive (optional).
 📊 `/stats` - View live database, RAM, CPU & bandwidth metrics.
 ⏱️ `/sync_duration` - Auto-backfill video duration for all past records.
 🧹 `/clean` - Flush RAM caches & compact memory.
@@ -44,20 +45,21 @@ I can generate permanent direct download & high-speed streaming links for files 
 """
 
 PrivacyText = """
-**Privacy Policy**
+**GateStream · Privacy**
 
-**1. Data Storage:** File links and message pointers are saved securely in MongoDB without duplicating files.
+**1. Data Storage:** File metadata and Telegram message pointers are stored in the deployment's MongoDB database. Media is retrieved from Telegram, with selected chunks cached on the host.
 
-**2. Download Links:** Each link contains a cryptographically secure token.
+**2. Download Links:** Links contain random tokens. Anyone with a valid link can access its media; Telegram user restrictions do not protect HTTP links.
 
 **3. User Control:** You can revoke links anytime using the "Revoke" button or commands.
 
-**4. Open Source:** The bot is [open source](https://github.com/WorkerOfArea51/OmniArchiver-F2L). Deploy your own instance for maximum privacy.
+**4. Your Deployment:** The hosting provider and deployment owner control the server and database. [View GateStream's source](https://github.com/Chowdhury-Siam/FTL) before deploying your own instance.
 
 __By using this bot, you agree to this policy.__
 """
 
 FileLinksText = """
+✦ **GateStream · File ready**
 📂 **File:** `%(file_name)s`
 📦 **Size:** `%(file_size)s`
 ⏱️ **Duration:** `%(duration)s`
@@ -68,7 +70,7 @@ FileLinksText = """
 """
 
 MediaLinksText = """
-🍿 **Movie / File Indexed!**
+✦ **GateStream · Media indexed**
 ━━━━━━━━━━━━━━━━━━━━━━━
 🎬 **Title:** `%(file_name)s`
 📦 **Size:** `%(file_size)s`  •  ⏱️ **Duration:** `%(duration)s`
