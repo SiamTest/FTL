@@ -84,6 +84,14 @@ class Server:
         BIND_ADDRESS = "0.0.0.0"
 
 
+class Drive:
+    ENABLED = env.get("DRIVE_ENABLED", "false").lower() in ("1", "true", "yes")
+    TOKEN_PATH = env.get("DRIVE_TOKEN_PATH", "token.pickle")
+    TOKEN_PICKLE_B64 = env.get("DRIVE_TOKEN_PICKLE_B64", "")
+    FOLDER_ID = env.get("DRIVE_FOLDER_ID", "").strip()
+    MAX_BYTES = _get_int(env.get("DRIVE_MAX_MB", 1024), 1024) * 1024 * 1024
+
+
 def validate_config():
     required = {
         "TELEGRAM_API_ID": Telegram.API_ID > 0,
