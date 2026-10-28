@@ -118,7 +118,7 @@ async def stats_command(_, msg: Message):
         heartbeat_str = "Active"
 
     text = (
-        "📊 **OmniArchiver Live System & Database Stats**\n\n"
+        "📊 **GateStream Live System & Database Stats**\n\n"
         f"🍿 **Anime:** `{stats.get('anime_franchises', stats.get('anime_titles', 0))} Titles` (`{stats.get('anime_titles', 0)} Arcs` • `{stats.get('anime_episodes', 0)} Episodes/Files`)\n"
         f"🎬 **Movies Indexed:** `{stats.get('movie_titles', 0)} Titles`\n"
         f"📺 **Web Series:** `{stats.get('webseries_titles', 0)} Titles` (`{stats.get('webseries_episodes', 0)} Episodes`)\n"
@@ -213,7 +213,7 @@ async def workers_command(_, msg: Message):
         channel_info = f"📁 **Storage Channel(s) Checked:** `{len(channel_ids)}`"
 
     header = (
-        f"🤖 **OmniArchiver Multi-Bot Fleet Status ({len(worker_clients)} Total)**\n"
+        f"🤖 **GateStream Multi-Bot Fleet Status ({len(worker_clients)} Total)**\n"
         f"{channel_info}\n"
         f"{'─'*28}\n"
     )
