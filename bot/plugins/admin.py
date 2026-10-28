@@ -60,7 +60,7 @@ async def shell_command(_, msg: Message):
 async def restart_command(_, msg: Message):
     """Restarts the bot process smoothly and notifies user upon coming back online."""
     import time
-    restart_msg = await msg.reply("🔄 **Restarting OmniArchiver Bot...**\nPlease wait ~5-10 seconds.", quote=True)
+    restart_msg = await msg.reply("🔄 **Restarting GateStream...**\nPlease wait ~5-10 seconds.", quote=True)
 
     # Save state to edit message after reboot
     try:
@@ -438,11 +438,11 @@ async def backup_database_command(client, msg: Message):
         gz_size = get_human_size(len(gz_buf.getvalue()))
 
         timestamp_str = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
-        file_name = f"OmniArchiver_Backup_{timestamp_str}.json.gz"
+        file_name = f"GateStream_Backup_{timestamp_str}.json.gz"
         gz_buf.name = file_name
 
         caption = (
-            f"📦 **OmniArchiver MongoDB Backup**\n"
+            f"📦 **GateStream Database Backup**\n"
             f"━━━━━━━━━━━━━━━━━━━━━━━\n"
             f"📅 **Date:** `{datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}`\n"
             f"📊 **Total Records:** `{total_records}`\n"
